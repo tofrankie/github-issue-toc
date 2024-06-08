@@ -1,0 +1,64 @@
+#plasmo-toc {
+  position: relative;
+}
+
+/* TODO: */
+.toc {
+  position: sticky;
+  top: 0;
+  left: 0;
+}
+
+.toc-ul {
+  padding: 0;
+  padding-left: 0;
+  margin: 0;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.toc-first {
+  font-weight: 500;
+}
+
+.toc-li {
+  padding: 6px 0;
+  overflow: hidden;
+  line-height: 18px;
+  text-align: unset;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  list-style: none;
+  appearance: none;
+  cursor: pointer;
+  cursor: pointer;
+  background: unset;
+  border: unset;
+  border-radius: 6px;
+  transition: background 33.333ms linear 0s;
+}
+
+.toc-li:hover {
+  color: var(--fgColor-default, var(--color-fg-default, #1f2328));
+  text-decoration: none;
+  background-color: var(
+    --control-transparent-bgColor-hover,
+    var(--color-action-list-item-default-hover-bg, rgba(208, 215, 222, 0.32))
+  );
+}
+
+.toc-active {
+  color: var(--fgColor-accent, var(--color-accent-fg));
+  background-color: #f6f8fa;
+}
+
+.toc-li a {
+  display: block;
+  color: var(--fgColor-default, var(--color-fg-default));
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.toc-li a:hover {
+  text-decoration: none;
+}

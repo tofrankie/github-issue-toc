@@ -1,5 +1,9 @@
 #plasmo-toc {
   position: relative;
+  padding-top: var(--base-size-16);
+  margin-top: var(--base-size-16);
+  font-size: 12px;
+  border-top: 1px solid var(--borderColor-muted, var(--color-border-muted));
 }
 
 .toc {

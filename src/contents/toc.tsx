@@ -36,7 +36,7 @@ export const getRootContainer = () => {
         return
       }
 
-      const rootContainerParent = document.querySelector('#partial-discussion-sidebar')
+      const rootContainerParent = document.querySelector('.Layout-sidebar')
       if (rootContainerParent) {
         clearInterval(timer)
 
@@ -170,26 +170,19 @@ export default function Toc() {
     }
   }, [headings])
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (headings.length === 0) return
 
-    const discussionBucket = document.querySelector('#discussion_bucket')
-    const partialDiscussionSidebar = discussionBucket.querySelector('#partial-discussion-sidebar')
+    const layoutSidebar = document.querySelector('.Layout-sidebar')
+    const partialDiscussionSidebar = document.querySelector('#partial-discussion-sidebar')
+    const plasmoToc = layoutSidebar.querySelector('#plasmo-toc') as HTMLElement
 
-    // padding-top + heading + toc
-    // 16 + 26 + n * 30
-    const plasmoToc = partialDiscussionSidebar.querySelector('#plasmo-toc') as HTMLElement
+    // margin-top + boder
+    const extraHeight = 16 + 1
+    const stickyContainerHeight =
+      layoutSidebar.clientHeight - partialDiscussionSidebar.clientHeight - extraHeight
 
-    let stickyHeight = discussionBucket.clientHeight - partialDiscussionSidebar.clientHeight
-
-    const plasmoTocinjected = !!plasmoToc.querySelector('.toc-ul')
-    if (plasmoTocinjected) {
-      const extraHeight = 16 + 1 // margin-top + border
-      stickyHeight = stickyHeight - plasmoToc.clientHeight - extraHeight
-    }
-
-    plasmoToc.style.height = `${stickyHeight}px`
-    plasmoToc.classList.toggle('discussion-sidebar-item', headings.length > 0)
+    plasmoToc.style.height = `${stickyContainerHeight}px`
   }, [headings])
 
   const updateActiveToc = useCallback(

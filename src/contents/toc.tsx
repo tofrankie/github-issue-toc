@@ -82,6 +82,7 @@ function formatHeadings(headings: HTMLElement[]): Heading[] {
     .filter(Boolean)
 }
 
+// TODO: 监听内容高度变化，调整 toc 容器高度
 function onIssueContentUpdate() {
   const observer = new MutationObserver(mutationsList => {
     // 当 issue 内容更新时，会先移除 TimelineItem 再重新添加
@@ -161,14 +162,17 @@ export default function Toc() {
 
   useEffect(() => {
     window.removeEventListener('scroll', updateActiveToc)
-    window.addEventListener('scroll', updateActiveToc)
+    if (headings.length === 0) return
 
+    window.addEventListener('scroll', updateActiveToc)
     return () => {
       window.removeEventListener('scroll', updateActiveToc)
     }
   }, [headings])
 
   useLayoutEffect(() => {
+    if (headings.length === 0) return
+
     const discussionBucket = document.querySelector('#discussion_bucket')
     const partialDiscussionSidebar = discussionBucket.querySelector('#partial-discussion-sidebar')
 
@@ -197,10 +201,12 @@ export default function Toc() {
 
       let matchedIndex = headingsWithTop.findIndex(item => item.top >= 0)
 
-      if (
+      const allHeadingInvisible = matchedIndex === -1
+      const reachedBottom =
         document.documentElement.clientHeight + window.scrollY ===
         document.documentElement.scrollHeight
-      ) {
+
+      if (allHeadingInvisible || reachedBottom) {
         matchedIndex = headingsWithTop.length - 1
       } else if (headingsWithTop[matchedIndex].top > 0 && matchedIndex > 0) {
         matchedIndex--

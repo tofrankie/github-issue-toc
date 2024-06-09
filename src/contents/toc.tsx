@@ -146,6 +146,7 @@ function throttle(func: () => any, wait: number) {
 
 export default function Toc() {
   const [headings, setHeadings] = useState<Heading[]>([])
+  const [activeHeadingId, setActiveHeadingId] = useState('')
 
   useEffect(() => {
     const headings = findHeadings()
@@ -159,11 +160,11 @@ export default function Toc() {
   }, [])
 
   useEffect(() => {
-    window.removeEventListener('scroll', setActiveToc)
-    window.addEventListener('scroll', setActiveToc)
+    window.removeEventListener('scroll', updateActiveToc)
+    window.addEventListener('scroll', updateActiveToc)
 
     return () => {
-      window.removeEventListener('scroll', setActiveToc)
+      window.removeEventListener('scroll', updateActiveToc)
     }
   }, [headings])
 
@@ -187,42 +188,43 @@ export default function Toc() {
     plasmoToc.classList.toggle('discussion-sidebar-item', headings.length > 0)
   }, [headings])
 
-  const setActiveToc = useCallback(
+  const updateActiveToc = useCallback(
     throttle(() => {
-      let activeHeadingId: string
+      const headingsWithTop = headings.map(item => {
+        const { top } = item.element.getBoundingClientRect()
+        return { ...item, top: top - 84 } // 72 + 24
+      })
 
-      for (let i = 0; i < headings.length; i++) {
-        const { element } = headings[i]
-        const rect = element.getBoundingClientRect()
-        if (rect.top >= 0 && rect.top <= window.innerHeight / 2) {
-          activeHeadingId = element.id
-          break
-        }
+      let matchedIndex = headingsWithTop.findIndex(item => item.top >= 0)
+
+      if (
+        document.documentElement.clientHeight + window.scrollY ===
+        document.documentElement.scrollHeight
+      ) {
+        matchedIndex = headingsWithTop.length - 1
+      } else if (headingsWithTop[matchedIndex].top > 0 && matchedIndex > 0) {
+        matchedIndex--
       }
 
-      document.querySelectorAll('#plasmo-toc .toc-li a').forEach(link => {
-        link.parentElement.classList.toggle(
-          'toc-li-active',
-          link.getAttribute('href') === `#${activeHeadingId}`
-        )
-      })
+      const activeHeadingId = headingsWithTop[matchedIndex].element.id
+      setActiveHeadingId(activeHeadingId)
     }, 100),
     [headings]
   )
 
-  const minLevel = Math.min(...headings.map(heading => heading.level))
-
   if (headings.length === 0) return null
 
-  // TODO: 指定 max-height
+  const minLevel = Math.min(...headings.map(heading => heading.level))
   return (
     <div className="toc">
-      <div className="text-bold discussion-sidebar-heading">Table of contents</div>
+      <div className="toc-heading text-bold discussion-sidebar-heading">Table of contents</div>
       <ul className="toc-ul">
         {headings.map((heading, index) => {
           const { level, text } = heading
           return (
-            <li key={level + text} className="toc-li">
+            <li
+              key={level + text}
+              className={`toc-li ${activeHeadingId === `heading-${index}` ? 'toc-li-active' : ''}`}>
               <a
                 href={`#heading-${index}`}
                 style={{ paddingLeft: `${(heading.level - minLevel) * 16 + 8}px` }}>

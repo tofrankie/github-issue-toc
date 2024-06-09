@@ -5,6 +5,16 @@
 .toc {
   position: sticky;
   top: 72px;
+  max-height: calc(100vh - 72px);
+  overflow-y: auto;
+}
+
+.toc-heading {
+  position: sticky;
+  top: 0;
+  padding-bottom: 8px;
+  margin-bottom: 0;
+  background: var(--bgColor-default, var(--color-canvas-default));
 }
 
 .toc-ul {

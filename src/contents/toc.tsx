@@ -1,11 +1,12 @@
 import styleText from 'data-text:./toc.css'
 import type { PlasmoCSConfig, PlasmoCSUIJSXContainer, PlasmoGetStyle, PlasmoRender } from 'plasmo'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 
 type Heading = {
   level: number
   text: string
+  element: HTMLElement
 }
 
 declare global {
@@ -66,9 +67,6 @@ function findHeadings() {
 }
 
 function formatHeadings(headings: HTMLElement[]): Heading[] {
-  // let minLevel = 1
-  // let maxLevel = 6
-
   return headings
     .map(heading => {
       const headingLevel = Number(heading.tagName[1])
@@ -76,10 +74,11 @@ function formatHeadings(headings: HTMLElement[]): Heading[] {
 
       if (!headingText) return null
 
-      // minLevel = Math.max(minLevel, headingLevel)
-      // maxLevel = Math.min(maxLevel, headingLevel)
-
-      return { level: headingLevel, text: headingText }
+      return {
+        level: headingLevel,
+        text: headingText,
+        element: heading
+      }
     })
     .filter(Boolean)
 }
@@ -125,6 +124,27 @@ async function recreateRoot() {
   root.render(<Toc />)
 }
 
+function throttle(func: () => any, wait: number) {
+  let prev = 0
+  let timer
+
+  return function (...args) {
+    const now = +new Date()
+    if (timer) clearTimeout(timer)
+
+    if (now >= prev + wait) {
+      prev = now
+      func.apply(this, args)
+      return
+    }
+
+    timer = setTimeout(() => {
+      prev = now
+      func.apply(this, args)
+    }, wait)
+  }
+}
+
 export default function Toc() {
   const [headings, setHeadings] = useState<Heading[]>([])
 
@@ -138,6 +158,38 @@ export default function Toc() {
 
     setHeadings(formattedHeadings)
   }, [])
+
+  useEffect(() => {
+    window.removeEventListener('scroll', setActiveToc)
+    window.addEventListener('scroll', setActiveToc)
+
+    return () => {
+      window.removeEventListener('scroll', setActiveToc)
+    }
+  }, [headings])
+
+  const setActiveToc = useCallback(
+    throttle(() => {
+      let activeHeadingId: string
+
+      for (let i = 0; i < headings.length; i++) {
+        const { element } = headings[i]
+        const rect = element.getBoundingClientRect()
+        if (rect.top >= 0 && rect.top <= window.innerHeight / 2) {
+          activeHeadingId = element.id
+          break
+        }
+      }
+
+      document.querySelectorAll('#plasmo-toc .toc-li a').forEach(link => {
+        link.parentElement.classList.toggle(
+          'toc-li-active',
+          link.getAttribute('href') === `#${activeHeadingId}`
+        )
+      })
+    }, 100),
+    [headings]
+  )
 
   const minLevel = Math.min(...headings.map(heading => heading.level))
 

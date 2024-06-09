@@ -47,16 +47,15 @@
   );
 }
 
-.toc-active {
-  color: var(--fgColor-accent, var(--color-accent-fg));
-  background-color: #f6f8fa;
-}
-
 .toc-li a {
   display: block;
   color: var(--fgColor-default, var(--color-fg-default));
   text-decoration: none;
   cursor: pointer;
+}
+
+.toc-li-active a {
+  color: var(--fgColor-accent, var(--color-accent-fg));
 }
 
 .toc-li a:hover {

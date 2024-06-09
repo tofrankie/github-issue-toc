@@ -17,7 +17,7 @@
   position: sticky;
   top: 0;
   padding-bottom: 8px;
-  margin-bottom: 0;
+  margin-bottom: 0 !important;
   background: var(--bgColor-default, var(--color-canvas-default));
 }
 

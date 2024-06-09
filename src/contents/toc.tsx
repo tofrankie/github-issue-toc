@@ -1,6 +1,6 @@
 import styleText from 'data-text:./toc.css'
 import type { PlasmoCSConfig, PlasmoCSUIJSXContainer, PlasmoGetStyle, PlasmoRender } from 'plasmo'
-import { useCallback, useEffect, useLayoutEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 
 type Heading = {

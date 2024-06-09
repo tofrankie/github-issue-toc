@@ -1,11 +1,17 @@
 import styleText from 'data-text:./toc.css'
 import type { PlasmoCSConfig, PlasmoCSUIJSXContainer, PlasmoGetStyle, PlasmoRender } from 'plasmo'
 import { useEffect, useState } from 'react'
-import { createRoot } from 'react-dom/client'
+import { createRoot, type Root } from 'react-dom/client'
 
 type Heading = {
   level: number
   text: string
+}
+
+declare global {
+  interface Window {
+    __plasmoTocRoot: Root
+  }
 }
 
 export const getStyle: PlasmoGetStyle = () => {
@@ -17,7 +23,7 @@ export const getStyle: PlasmoGetStyle = () => {
 export const config: PlasmoCSConfig = {
   matches: ['https://github.com/*/*/issues/*'],
   css: ['./toc.css'],
-  run_at: 'document_end'
+  run_at: 'document_idle'
 }
 
 export const getRootContainer = () => {
@@ -40,14 +46,17 @@ export const getRootContainer = () => {
 
         resolve(rootContainer)
       }
-    }, 137)
+    }, 200)
   })
 }
 
 export const render: PlasmoRender<PlasmoCSUIJSXContainer> = async ({ createRootContainer }) => {
   const rootContainer = await createRootContainer()
   const root = createRoot(rootContainer)
+  window.__plasmoTocRoot = root
   root.render(<Toc />)
+
+  onIssueContentUpdate()
 }
 
 function findHeadings() {
@@ -75,6 +84,47 @@ function formatHeadings(headings: HTMLElement[]): Heading[] {
     .filter(Boolean)
 }
 
+function onIssueContentUpdate() {
+  const observer = new MutationObserver(mutationsList => {
+    // 当 issue 内容更新时，会先移除 TimelineItem 再重新添加
+    const addedNodeList = mutationsList
+      .filter(mutationRecord => {
+        return mutationRecord.type === 'childList' && mutationRecord.addedNodes.length > 0
+      })
+      .map(mutationRecord => mutationRecord.addedNodes)
+      .flat()
+
+    if (addedNodeList.length === 0) return
+
+    const firstCommentContainer = document.querySelector(
+      '.js-discussion .TimelineItem .timeline-comment'
+    )
+
+    // @ts-ignore
+    if (addedNodeList.includes(firstCommentContainer)) return
+
+    recreateRoot()
+  })
+
+  const node = document.querySelector('.js-discussion')
+  observer.observe(node, {
+    childList: true,
+    subtree: true
+  })
+}
+
+async function recreateRoot() {
+  const rootContainer = await getRootContainer()
+
+  if (window.__plasmoTocRoot) {
+    window.__plasmoTocRoot.unmount()
+  }
+
+  const root = createRoot(rootContainer as Element)
+  window.__plasmoTocRoot = root
+  root.render(<Toc />)
+}
+
 export default function Toc() {
   const [headings, setHeadings] = useState<Heading[]>([])
 
@@ -91,9 +141,12 @@ export default function Toc() {
 
   const minLevel = Math.min(...headings.map(heading => heading.level))
 
+  if (headings.length === 0) return null
+
+  // TODO: 指定 max-height
   return (
     <div className="toc">
-      <div className="text-bold discussion-sidebar-heading">Table of Contents</div>
+      <div className="text-bold discussion-sidebar-heading">Table of contents</div>
       <ul className="toc-ul">
         {headings.map((heading, index) => {
           const { level, text } = heading

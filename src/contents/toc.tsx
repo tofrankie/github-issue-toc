@@ -1,6 +1,6 @@
 import styleText from 'data-text:./toc.css'
 import type { PlasmoCSConfig, PlasmoCSUIJSXContainer, PlasmoGetStyle, PlasmoRender } from 'plasmo'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 
 type Heading = {
@@ -42,7 +42,6 @@ export const getRootContainer = () => {
 
         const rootContainer = document.createElement('div')
         rootContainer.id = 'plasmo-toc'
-        rootContainer.className = 'discussion-sidebar-item'
         rootContainerParent.appendChild(rootContainer)
 
         resolve(rootContainer)
@@ -166,6 +165,26 @@ export default function Toc() {
     return () => {
       window.removeEventListener('scroll', setActiveToc)
     }
+  }, [headings])
+
+  useLayoutEffect(() => {
+    const discussionBucket = document.querySelector('#discussion_bucket')
+    const partialDiscussionSidebar = discussionBucket.querySelector('#partial-discussion-sidebar')
+
+    // padding-top + heading + toc
+    // 16 + 26 + n * 30
+    const plasmoToc = partialDiscussionSidebar.querySelector('#plasmo-toc') as HTMLElement
+
+    let stickyHeight = discussionBucket.clientHeight - partialDiscussionSidebar.clientHeight
+
+    const plasmoTocinjected = !!plasmoToc.querySelector('.toc-ul')
+    if (plasmoTocinjected) {
+      const extraHeight = 16 + 1 // margin-top + border
+      stickyHeight = stickyHeight - plasmoToc.clientHeight - extraHeight
+    }
+
+    plasmoToc.style.height = `${stickyHeight}px`
+    plasmoToc.classList.toggle('discussion-sidebar-item', headings.length > 0)
   }, [headings])
 
   const setActiveToc = useCallback(

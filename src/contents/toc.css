@@ -35,14 +35,8 @@
 
 .toc-li {
   padding: 6px 0;
-  overflow: hidden;
-  line-height: 18px;
-  text-align: unset;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   list-style: none;
   appearance: none;
-  cursor: pointer;
   cursor: pointer;
   background: unset;
   border: unset;
@@ -61,8 +55,13 @@
 
 .toc-li a {
   display: block;
+  overflow: hidden;
+  line-height: 18px;
   color: var(--fgColor-default, var(--color-fg-default));
+  text-align: unset;
   text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   cursor: pointer;
 }
 

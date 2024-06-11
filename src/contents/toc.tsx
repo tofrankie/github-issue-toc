@@ -3,11 +3,7 @@ import type { PlasmoCSConfig, PlasmoCSUIJSXContainer, PlasmoGetStyle, PlasmoRend
 import { useCallback, useEffect, useState } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 
-type Heading = {
-  level: number
-  text: string
-  element: HTMLElement
-}
+import { findHeadings, formatHeadings, isGitHubIssuePage, throttle, type Heading } from '@/utils'
 
 declare global {
   interface Window {
@@ -22,9 +18,9 @@ export const getStyle: PlasmoGetStyle = () => {
 }
 
 export const config: PlasmoCSConfig = {
-  matches: ['https://github.com/*/*/issues/*'],
+  matches: ['https://github.com/*'], // https://github.com/*/*/issues/*
   css: ['./toc.css'],
-  run_at: 'document_idle'
+  run_at: 'document_end'
 }
 
 export const getRootContainer = () => {
@@ -32,6 +28,7 @@ export const getRootContainer = () => {
     const timer = setInterval(() => {
       const rootContainer = document.querySelector('#plasmo-toc')
       if (rootContainer) {
+        clearInterval(timer)
         resolve(rootContainer)
         return
       }
@@ -51,40 +48,24 @@ export const getRootContainer = () => {
 }
 
 export const render: PlasmoRender<PlasmoCSUIJSXContainer> = async ({ createRootContainer }) => {
+  const url = document.location.href
+  if (!isGitHubIssuePage(url)) return
+
   const rootContainer = await createRootContainer()
   const root = createRoot(rootContainer)
   window.__plasmoTocRoot = root
   root.render(<Toc />)
 
-  onIssueContentUpdate()
+  onIssueUpdate()
 }
 
-function findHeadings() {
-  const markdownBody: HTMLElement = document.querySelector('.edit-comment-hide .markdown-body')
-  const headings: NodeListOf<HTMLElement> = markdownBody.querySelectorAll('h1, h2, h3, h4, h5, h6')
-  return [...headings]
-}
-
-function formatHeadings(headings: HTMLElement[]): Heading[] {
-  return headings
-    .map(heading => {
-      const headingLevel = Number(heading.tagName[1])
-      const headingText = heading.textContent
-
-      if (!headingText) return null
-
-      return {
-        level: headingLevel,
-        text: headingText,
-        element: heading
-      }
-    })
-    .filter(Boolean)
-}
+let observer: MutationObserver
 
 // TODO: 监听内容高度变化，调整 toc 容器高度
-function onIssueContentUpdate() {
-  const observer = new MutationObserver(mutationsList => {
+function onIssueUpdate() {
+  if (observer) observer.disconnect()
+
+  observer = new MutationObserver(mutationsList => {
     // 当 issue 内容更新时，会先移除 TimelineItem 再重新添加
     const addedNodeList = mutationsList
       .filter(mutationRecord => {
@@ -122,27 +103,8 @@ async function recreateRoot() {
   const root = createRoot(rootContainer as Element)
   window.__plasmoTocRoot = root
   root.render(<Toc />)
-}
 
-function throttle(func: () => any, wait: number) {
-  let prev = 0
-  let timer
-
-  return function (...args) {
-    const now = +new Date()
-    if (timer) clearTimeout(timer)
-
-    if (now >= prev + wait) {
-      prev = now
-      func.apply(this, args)
-      return
-    }
-
-    timer = setTimeout(() => {
-      prev = now
-      func.apply(this, args)
-    }, wait)
-  }
+  onIssueUpdate()
 }
 
 export default function Toc() {
@@ -222,7 +184,7 @@ export default function Toc() {
           const { level, text } = heading
           return (
             <li
-              key={level + text}
+              key={`${text}_${level}_${index}`}
               className={`toc-li ${activeHeadingId === `heading-${index}` ? 'toc-li-active' : ''}`}>
               <a
                 href={`#heading-${index}`}
@@ -235,4 +197,24 @@ export default function Toc() {
       </ul>
     </div>
   )
+}
+
+chrome.runtime.onMessage.addListener(throttle(onBackgroundMessage, 500))
+
+let plasmoTocMounting = false
+
+function onBackgroundMessage(message: { type: string; payload: any }) {
+  try {
+    if (message.type !== 'plasmo_toc_mount') return
+
+    if (plasmoTocMounting) return
+    plasmoTocMounting = true
+
+    const rootContainer = document.querySelector('#plasmo-toc')
+    if (rootContainer) return
+
+    recreateRoot()
+  } finally {
+    plasmoTocMounting = false
+  }
 }

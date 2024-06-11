@@ -4,18 +4,18 @@ export function isGitHubIssuePage(url: string) {
 }
 
 export function findHeadings() {
-  const markdownBody: HTMLElement = document.querySelector('.edit-comment-hide .markdown-body')
-  const headings: NodeListOf<HTMLElement> = markdownBody.querySelectorAll('h1, h2, h3, h4, h5, h6')
+  const markdownBody = document.querySelector('.edit-comment-hide .markdown-body')
+  const headings = markdownBody.querySelectorAll('h1, h2, h3, h4, h5, h6')
   return [...headings]
 }
 
 export type Heading = {
   level: number
   text: string
-  element: HTMLElement
+  element: Element
 }
 
-export function formatHeadings(headings: HTMLElement[]): Heading[] {
+export function formatHeadings(headings: Element[]): Heading[] {
   return headings
     .map(heading => {
       const headingLevel = Number(heading.tagName[1])

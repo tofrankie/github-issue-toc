@@ -1,3 +1,4 @@
+import { MESSAGE_TYPE } from '@/constants'
 import { isGitHubIssuePage } from '@/utils'
 
 chrome.webNavigation.onCompleted.addListener(() => {
@@ -13,11 +14,11 @@ chrome.webNavigation.onCompleted.addListener(() => {
   chrome.webNavigation.onHistoryStateUpdated.addListener(details => {
     const { url, tabId } = details
     if (!isGitHubIssuePage(url)) return
-    sendMessageToToc(tabId, { type: 'plasmo_toc_mount', payload: details })
+    sendMessageToContentScript(tabId, { type: MESSAGE_TYPE.PLASMO_TOC_MOUNT, payload: details })
   })
 })
 
-async function sendMessageToToc(tabId: number, message: any) {
+async function sendMessageToContentScript(tabId: number, message: any) {
   try {
     chrome.tabs.sendMessage(tabId, message)
   } catch (error) {

@@ -3,6 +3,7 @@ import type { PlasmoCSConfig, PlasmoCSUIJSXContainer, PlasmoGetStyle, PlasmoRend
 import { useCallback, useEffect, useState } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 
+import { MESSAGE_TYPE } from '@/constants'
 import { findHeadings, formatHeadings, isGitHubIssuePage, throttle, type Heading } from '@/utils'
 
 declare global {
@@ -205,7 +206,7 @@ let plasmoTocMounting = false
 
 function onBackgroundMessage(message: { type: string; payload: any }) {
   try {
-    if (message.type !== 'plasmo_toc_mount') return
+    if (message.type !== MESSAGE_TYPE.PLASMO_TOC_MOUNT) return
 
     if (plasmoTocMounting) return
     plasmoTocMounting = true

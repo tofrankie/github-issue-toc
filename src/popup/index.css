@@ -1,0 +1,57 @@
+body {
+  padding: 0;
+  margin: 0;
+}
+
+.popup {
+  width: 230px;
+  padding: 16px;
+  color: #000;
+  /* background: radial-gradient(circle at 50% 50%, #283944, #000); */
+}
+
+.greeting {
+  font-size: 16px;
+  text-align: center;
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 12px auto 6px;
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.links a,
+a:hover,
+a:visited,
+a:active {
+  color: #000;
+  text-decoration: underline;
+}
+
+.links a:hover {
+  color: #0969da;
+  text-decoration: underline;
+}
+
+.separator {
+  margin: 0 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .popup {
+    color: #fff;
+    background: #1f2020;
+  }
+
+  .links a {
+    color: #fff;
+  }
+
+  .links a:hover {
+    color: #4493f8;
+  }
+}

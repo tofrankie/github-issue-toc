@@ -1,9 +1,9 @@
 {
   "name": "github-issue-toc",
-  "displayName": "Github issue toc",
-  "version": "0.0.1",
-  "description": "A basic Plasmo extension.",
-  "author": "Frankie",
+  "displayName": "Github Issue TOC",
+  "version": "1.0.0",
+  "description": "It adds a table of contents to Github's issue pages for quick browsing and content navigation.",
+  "author": "Frankie <1426203851@qq.com>",
   "scripts": {
     "dev": "plasmo dev",
     "build": "plasmo build",

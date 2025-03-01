@@ -4,7 +4,9 @@ export function isGitHubIssuePage(url: string) {
 }
 
 export function findHeadings() {
-  const markdownBody = document.querySelector('.edit-comment-hide .markdown-body')
+  const markdownBody = document.querySelector(
+    '[data-testid="issue-viewer-issue-container"] [data-testid="markdown-body"]'
+  )
   const headings = markdownBody.querySelectorAll('h1, h2, h3, h4, h5, h6')
   return [...headings]
 }

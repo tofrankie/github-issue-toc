@@ -1,7 +1,8 @@
 #plasmo-toc {
   position: relative;
   padding-top: var(--base-size-16);
-  margin-top: var(--base-size-16);
+  margin-top: var(--base-size-8);
+  margin-left: var(--base-size-8);
   font-size: 12px;
   border-top: 1px solid var(--borderColor-muted, var(--color-border-muted));
 }
@@ -47,28 +48,21 @@
 .toc-li:hover {
   color: var(--fgColor-default, var(--color-fg-default, #1f2328));
   text-decoration: none;
+  cursor: pointer;
   background-color: var(
     --control-transparent-bgColor-hover,
     var(--color-action-list-item-default-hover-bg, rgba(208, 215, 222, 0.32))
   );
 }
 
-.toc-li a {
-  display: block;
+.toc-li .toc-li-text {
   overflow: hidden;
   line-height: 18px;
   color: var(--fgColor-default, var(--color-fg-default));
-  text-align: unset;
-  text-decoration: none;
   text-overflow: ellipsis;
   white-space: nowrap;
-  cursor: pointer;
 }
 
-.toc-li-active a {
+.toc-li-active .toc-li-text {
   color: var(--fgColor-accent, var(--color-accent-fg));
-}
-
-.toc-li a:hover {
-  text-decoration: none;
 }

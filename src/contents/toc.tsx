@@ -34,7 +34,9 @@ export const getRootContainer = () => {
         return
       }
 
-      const rootContainerParent = document.querySelector('.Layout-sidebar')
+      const rootContainerParent = document.querySelector(
+        '[data-testid="issue-viewer-metadata-container"]'
+      )
       if (rootContainerParent) {
         clearInterval(timer)
 
@@ -66,8 +68,8 @@ let observer: MutationObserver
 function onIssueUpdate() {
   if (observer) observer.disconnect()
 
+  // 监听 issue 内容更新
   observer = new MutationObserver(mutationsList => {
-    // 当 issue 内容更新时，会先移除 TimelineItem 再重新添加
     const addedNodeList = mutationsList
       .filter(mutationRecord => {
         return mutationRecord.type === 'childList' && mutationRecord.addedNodes.length > 0
@@ -77,20 +79,14 @@ function onIssueUpdate() {
 
     if (addedNodeList.length === 0) return
 
-    const firstCommentContainer = document.querySelector(
-      '.js-discussion .TimelineItem .timeline-comment'
-    )
-
-    // @ts-ignore
-    if (addedNodeList.includes(firstCommentContainer)) return
-
     recreateRoot()
   })
 
-  const node = document.querySelector('.js-discussion')
+  const node = document.querySelector('[data-testid="issue-body"]')
   observer.observe(node, {
     childList: true,
-    subtree: true
+    subtree: true,
+    characterData: true
   })
 }
 
@@ -136,20 +132,28 @@ export default function Toc() {
   useEffect(() => {
     if (headings.length === 0) return
 
-    const layoutSidebar = document.querySelector('.Layout-sidebar')
-    const partialDiscussionSidebar = document.querySelector('#partial-discussion-sidebar')
-    const plasmoToc = layoutSidebar.querySelector('#plasmo-toc') as HTMLElement
+    const metaDataContianer = document.querySelector(
+      '[data-testid="issue-viewer-metadata-container"]'
+    )
+    const metaDataPane = document.querySelector('[data-testid="issue-viewer-metadata-pane"]')
+    const plasmoToc = metaDataContianer.querySelector('#plasmo-toc') as HTMLElement
 
-    // margin-top + boder
+    // margin-top + border
     const extraHeight = 16 + 1
     const stickyContainerHeight =
-      layoutSidebar.clientHeight - partialDiscussionSidebar.clientHeight - extraHeight
+      metaDataContianer.clientHeight - metaDataPane.clientHeight - extraHeight
 
     plasmoToc.style.height = `${stickyContainerHeight}px`
   }, [headings])
 
+  useEffect(() => {
+    if (!headings.length || activeHeadingId) return
+    updateActiveToc()
+  }, [headings, activeHeadingId])
+
   const updateActiveToc = useCallback(
     throttle(() => {
+      console.log('----> updateActiveToc')
       const headingsWithTop = headings.map(item => {
         const { top } = item.element.getBoundingClientRect()
         return { ...item, top: top - 84 } // 72 + 24
@@ -174,6 +178,13 @@ export default function Toc() {
     [headings]
   )
 
+  const scrollToHeading = useCallback((e: React.MouseEvent<HTMLLIElement>) => {
+    const headingId = e.currentTarget.dataset.href?.split('#')[1]
+    const headingElement = document.getElementById(headingId)
+    if (!headingElement) return
+    window.scrollTo({ top: headingElement.offsetTop + 24, behavior: 'instant' })
+  }, [])
+
   if (headings.length === 0) return null
 
   const minLevel = Math.min(...headings.map(heading => heading.level))
@@ -186,12 +197,14 @@ export default function Toc() {
           return (
             <li
               key={`${text}_${level}_${index}`}
+              data-href={`#heading-${index}`}
+              onClick={scrollToHeading}
               className={`toc-li ${activeHeadingId === `heading-${index}` ? 'toc-li-active' : ''}`}>
-              <a
-                href={`#heading-${index}`}
+              <div
+                className="toc-li-text"
                 style={{ paddingLeft: `${(heading.level - minLevel) * 16 + 8}px` }}>
                 {text}
-              </a>
+              </div>
             </li>
           )
         })}

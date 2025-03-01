@@ -1,7 +1,7 @@
 {
   "name": "github-issue-toc",
   "displayName": "Github Issue TOC",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "It adds a table of contents to Github's issue pages for quick browsing and content navigation.",
   "author": "Frankie <1426203851@qq.com>",
   "scripts": {

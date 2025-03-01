@@ -5,8 +5,10 @@
   "description": "It adds a table of contents to Github's issue pages for quick browsing and content navigation.",
   "author": "Frankie <1426203851@qq.com>",
   "scripts": {
-    "dev": "plasmo dev",
-    "build": "plasmo build --zip"
+    "dev": "plasmo dev  --target=chrome-mv3",
+    "dev:edge": "plasmo dev --target=edge-mv3",
+    "build": "plasmo build --zip --target=chrome-mv3",
+    "build:edge": "plasmo build --zip --target=edge-mv3"
   },
   "dependencies": {
     "plasmo": "0.90.3",

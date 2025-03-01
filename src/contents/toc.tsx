@@ -153,7 +153,6 @@ export default function Toc() {
 
   const updateActiveToc = useCallback(
     throttle(() => {
-      console.log('----> updateActiveToc')
       const headingsWithTop = headings.map(item => {
         const { top } = item.element.getBoundingClientRect()
         return { ...item, top: top - 84 } // 72 + 24

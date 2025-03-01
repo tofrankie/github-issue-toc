@@ -6,11 +6,10 @@
   "author": "Frankie <1426203851@qq.com>",
   "scripts": {
     "dev": "plasmo dev",
-    "build": "plasmo build",
-    "package": "plasmo package"
+    "build": "plasmo build --zip"
   },
   "dependencies": {
-    "plasmo": "0.87.1",
+    "plasmo": "0.90.3",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },

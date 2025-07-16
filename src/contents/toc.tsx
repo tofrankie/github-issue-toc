@@ -35,7 +35,7 @@ export const getRootContainer = () => {
       }
 
       const rootContainerParent = document.querySelector(
-        '[data-testid="issue-viewer-metadata-container"]'
+        '[data-testid="issue-viewer-metadata-pane"]'
       )
       if (rootContainerParent) {
         clearInterval(timer)

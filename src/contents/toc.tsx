@@ -34,15 +34,13 @@ export const getRootContainer = () => {
         return
       }
 
-      const rootContainerParent = document.querySelector(
-        '[data-testid="issue-viewer-metadata-pane"]'
-      )
+      const rootContainerParent = document.querySelector('[data-testid="sticky-sidebar"] > div')
       if (rootContainerParent) {
         clearInterval(timer)
 
         const rootContainer = document.createElement('div')
         rootContainer.id = 'plasmo-toc'
-        rootContainerParent.appendChild(rootContainer)
+        rootContainerParent.insertBefore(rootContainer, rootContainerParent.firstChild)
 
         resolve(rootContainer)
       }

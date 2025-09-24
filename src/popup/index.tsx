@@ -5,13 +5,13 @@ export default function Popup() {
     <div className="popup">
       <div className="greeting"> Enjoy it. ❤️</div>
       <div className="links">
-        <a className="link" href="https://github.com/toFrankie/github-issue-toc" target="_blank">
+        <a className="link" href="https://github.com/tofrankie/github-issue-toc" target="_blank">
           Homepage
         </a>
         <span className="separator">•</span>
         <a
           className="link"
-          href="https://github.com/toFrankie/github-issue-toc/issues"
+          href="https://github.com/tofrankie/github-issue-toc/issues"
           target="_blank">
           Report issue
         </a>

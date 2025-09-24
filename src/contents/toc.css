@@ -1,15 +1,15 @@
 #plasmo-toc {
   position: relative;
   padding-top: var(--base-size-16);
-  margin-top: var(--base-size-8);
+  padding-bottom: var(--base-size-8);
   margin-left: var(--base-size-8);
   font-size: 12px;
   border-top: 1px solid var(--borderColor-muted, var(--color-border-muted));
+  border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));
 }
 
 .toc {
-  position: sticky;
-  top: 72px;
+  position: relative;
   max-height: calc(100vh - 72px);
   overflow-y: auto;
 }
@@ -50,8 +50,8 @@
   text-decoration: none;
   cursor: pointer;
   background-color: var(
-    --control-transparent-bgColor-hover,
-    var(--color-action-list-item-default-hover-bg, rgba(208, 215, 222, 0.32))
+  --control-transparent-bgColor-hover,
+  var(--color-action-list-item-default-hover-bg, rgba(208, 215, 222, 0.32))
   );
 }
 

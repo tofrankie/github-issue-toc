@@ -34,13 +34,16 @@ export const getRootContainer = () => {
         return
       }
 
-      const rootContainerParent = document.querySelector('[data-testid="sticky-sidebar"] > div')
+      const contentAndSidebarWrapper = document.querySelector(
+        '[class*="IssueViewer-module__contentAndSidebarWrapper__"]'
+      )
+      const rootContainerParent = contentAndSidebarWrapper as HTMLElement | null
       if (rootContainerParent) {
         clearInterval(timer)
 
         const rootContainer = document.createElement('div')
         rootContainer.id = 'plasmo-toc'
-        rootContainerParent.insertBefore(rootContainer, rootContainerParent.firstChild)
+        rootContainerParent.prepend(rootContainer)
 
         resolve(rootContainer)
       }
@@ -130,18 +133,10 @@ export default function Toc() {
   useEffect(() => {
     if (headings.length === 0) return
 
-    const metaDataContianer = document.querySelector(
-      '[data-testid="issue-viewer-metadata-container"]'
-    )
-    const metaDataPane = document.querySelector('[data-testid="issue-viewer-metadata-pane"]')
-    const plasmoToc = metaDataContianer.querySelector('#plasmo-toc') as HTMLElement
-
-    // margin-top + border
-    const extraHeight = 16 + 1
-    const stickyContainerHeight =
-      metaDataContianer.clientHeight - metaDataPane.clientHeight - extraHeight
-
-    plasmoToc.style.height = `${stickyContainerHeight}px`
+    const contentContainer = document.querySelector(
+      '[class*="ContentWrapper-module__contentContainer__"]'
+    ) as HTMLElement | null
+    if (!contentContainer) return
   }, [headings])
 
   useEffect(() => {
@@ -186,26 +181,28 @@ export default function Toc() {
 
   const minLevel = Math.min(...headings.map(heading => heading.level))
   return (
-    <div className="toc">
-      <div className="toc-heading text-bold discussion-sidebar-heading">Table of contents</div>
-      <ul className="toc-ul">
-        {headings.map((heading, index) => {
-          const { level, text } = heading
-          return (
-            <li
-              key={`${text}_${level}_${index}`}
-              data-href={`#heading-${index}`}
-              onClick={scrollToHeading}
-              className={`toc-li ${activeHeadingId === `heading-${index}` ? 'toc-li-active' : ''}`}>
-              <div
-                className="toc-li-text"
-                style={{ paddingLeft: `${(heading.level - minLevel) * 16 + 8}px` }}>
-                {text}
-              </div>
-            </li>
-          )
-        })}
-      </ul>
+    <div className="toc-container">
+      <div className="toc">
+        <div className="toc-heading text-bold discussion-sidebar-heading">Table of contents</div>
+        <ul className="toc-ul">
+          {headings.map((heading, index) => {
+            const { level, text } = heading
+            return (
+              <li
+                key={`${text}_${level}_${index}`}
+                data-href={`#heading-${index}`}
+                onClick={scrollToHeading}
+                className={`toc-li ${activeHeadingId === `heading-${index}` ? 'toc-li-active' : ''}`}>
+                <div
+                  className="toc-li-text"
+                  style={{ paddingLeft: `${(heading.level - minLevel) * 16 + 8}px` }}>
+                  {text}
+                </div>
+              </li>
+            )
+          })}
+        </ul>
+      </div>
     </div>
   )
 }

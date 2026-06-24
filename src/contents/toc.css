@@ -1,15 +1,19 @@
 #plasmo-toc {
   position: relative;
-  padding-top: var(--base-size-16);
-  padding-bottom: var(--base-size-8);
-  margin-left: var(--base-size-8);
+  width: 0;
   font-size: 12px;
-  border-top: 1px solid var(--borderColor-muted, var(--color-border-muted));
-  border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));
+}
+
+.toc-container {
+  position: sticky;
+  /* issue-viewer-sticky-header height 56px */
+  top: calc(56px + var(--base-size-8));
 }
 
 .toc {
-  position: relative;
+  position: absolute;
+  right: 0;
+  max-width: 256px;
   max-height: calc(100vh - 72px);
   overflow-y: auto;
 }
@@ -17,9 +21,10 @@
 .toc-heading {
   position: sticky;
   top: 0;
-  padding-bottom: 8px;
-  margin-bottom: 0 !important;
+  padding-bottom: var(--base-size-8);
+  margin-bottom: var(--base-size-4) !important;
   background: var(--bgColor-default, var(--color-canvas-default));
+  border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));
 }
 
 .toc-ul {
@@ -36,9 +41,9 @@
 
 .toc-li {
   padding: 6px 0;
-  list-style: none;
   appearance: none;
   cursor: pointer;
+  list-style: none;
   background: unset;
   border: unset;
   border-radius: 6px;
@@ -56,10 +61,11 @@
 }
 
 .toc-li .toc-li-text {
+  padding-right: var(--base-size-8);
   overflow: hidden;
+  text-overflow: ellipsis;
   line-height: 18px;
   color: var(--fgColor-default, var(--color-fg-default));
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 

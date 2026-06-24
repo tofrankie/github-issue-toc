@@ -6,6 +6,7 @@
   "packageManager": "pnpm@10.17.1",
   "description": "Adds a table of contents to GitHub issue pages for faster browsing and navigation.",
   "author": "Frankie <1426203851@qq.com>",
+  "license": "MIT",
   "funding": {
     "type": "paypal",
     "url": "https://paypal.me/tofrankie"

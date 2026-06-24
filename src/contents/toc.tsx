@@ -1,10 +1,12 @@
-import styleText from 'data-text:./toc.css'
 import type { PlasmoCSConfig, PlasmoCSUIJSXContainer, PlasmoGetStyle, PlasmoRender } from 'plasmo'
+import type { Root } from 'react-dom/client'
+import type { Heading } from '@/utils'
+import styleText from 'data-text:./toc.css'
 import { useCallback, useEffect, useState } from 'react'
-import { createRoot, type Root } from 'react-dom/client'
 
+import { createRoot } from 'react-dom/client'
 import { MESSAGE_TYPE } from '@/constants'
-import { findHeadings, formatHeadings, isGitHubIssuePage, throttle, type Heading } from '@/utils'
+import { findHeadings, formatHeadings, isGitHubIssuePage, throttle } from '@/utils'
 
 declare global {
   interface Window {
@@ -21,10 +23,10 @@ export const getStyle: PlasmoGetStyle = () => {
 export const config: PlasmoCSConfig = {
   matches: ['https://github.com/*'], // https://github.com/*/*/issues/*
   css: ['./toc.css'],
-  run_at: 'document_end'
+  run_at: 'document_end',
 }
 
-export const getRootContainer = () => {
+export function getRootContainer() {
   return new Promise(resolve => {
     const timer = setInterval(() => {
       const rootContainer = document.querySelector('#plasmo-toc')
@@ -87,7 +89,7 @@ function onIssueUpdate() {
   observer.observe(node, {
     childList: true,
     subtree: true,
-    characterData: true
+    characterData: true,
   })
 }
 
@@ -128,15 +130,6 @@ export default function Toc() {
     return () => {
       window.removeEventListener('scroll', updateActiveToc)
     }
-  }, [headings])
-
-  useEffect(() => {
-    if (headings.length === 0) return
-
-    const contentContainer = document.querySelector(
-      '[class*="ContentWrapper-module__contentContainer__"]'
-    ) as HTMLElement | null
-    if (!contentContainer) return
   }, [headings])
 
   useEffect(() => {
@@ -192,10 +185,12 @@ export default function Toc() {
                 key={`${text}_${level}_${index}`}
                 data-href={`#heading-${index}`}
                 onClick={scrollToHeading}
-                className={`toc-li ${activeHeadingId === `heading-${index}` ? 'toc-li-active' : ''}`}>
+                className={`toc-li ${activeHeadingId === `heading-${index}` ? 'toc-li-active' : ''}`}
+              >
                 <div
                   className="toc-li-text"
-                  style={{ paddingLeft: `${(heading.level - minLevel) * 16 + 8}px` }}>
+                  style={{ paddingLeft: `${(heading.level - minLevel) * 16 + 8}px` }}
+                >
                   {text}
                 </div>
               </li>

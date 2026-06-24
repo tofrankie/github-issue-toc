@@ -1,5 +1,5 @@
 export function isGitHubIssuePage(url: string) {
-  const pattern = /^https:\/\/github\.com\/[^\/]+\/[^\/]+\/issues\/\d+/
+  const pattern = /^https:\/\/github\.com\/[^/]+\/[^/]+\/issues\/\d+/
   return pattern.test(url)
 }
 
@@ -11,7 +11,7 @@ export function findHeadings() {
   return [...headings]
 }
 
-export type Heading = {
+export interface Heading {
   level: number
   text: string
   element: Element
@@ -28,7 +28,7 @@ export function formatHeadings(headings: Element[]): Heading[] {
       return {
         level: headingLevel,
         text: headingText,
-        element: heading
+        element: heading,
       }
     })
     .filter(Boolean)
@@ -39,7 +39,7 @@ export function throttle(func: (...args: any[]) => any, wait: number) {
   let timer
 
   return function (...args) {
-    const now = +new Date()
+    const now = Date.now()
     if (timer) clearTimeout(timer)
 
     if (now >= prev + wait) {

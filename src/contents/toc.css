@@ -29,7 +29,6 @@
 
 .toc-ul {
   padding: 0;
-  padding-left: 0;
   margin: 0;
   font-size: 12px;
   line-height: 18px;
@@ -55,8 +54,8 @@
   text-decoration: none;
   cursor: pointer;
   background-color: var(
-  --control-transparent-bgColor-hover,
-  var(--color-action-list-item-default-hover-bg, rgba(208, 215, 222, 0.32))
+    --control-transparent-bgColor-hover,
+    var(--color-action-list-item-default-hover-bg, rgb(208 215 222 / 32%))
   );
 }
 

@@ -12,7 +12,8 @@ export default function Popup() {
         <a
           className="link"
           href="https://github.com/tofrankie/github-issue-toc/issues"
-          target="_blank">
+          target="_blank"
+        >
           Report issue
         </a>
       </div>

@@ -2,9 +2,9 @@
   "name": "github-issue-toc",
   "displayName": "GitHub Issue TOC",
   "type": "module",
-  "version": "1.0.3",
+  "version": "2.0.0",
   "packageManager": "pnpm@10.17.1",
-  "description": "It adds a table of contents to GitHub's issue pages for quick browsing and content navigation.",
+  "description": "Adds a table of contents to GitHub issue pages for faster browsing and navigation.",
   "author": "Frankie <1426203851@qq.com>",
   "funding": {
     "type": "paypal",

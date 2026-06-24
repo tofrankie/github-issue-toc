@@ -1,7 +1,11 @@
 # GitHub Issue TOC
 
-GitHub Issue TOC is a Chrome extension that automatically generates a table of contents on GitHub's Issue page and displays it in the right sidebar, helping users to quickly locate sections of content of interest, especially for those who build blogs and write long articles on GitHub.
+GitHub Issue TOC adds a table of contents to GitHub issue pages and shows it in the right sidebar for faster browsing and navigation.
 
-> **Install from [Chrome Web Store](https://chromewebstore.google.com/detail/github-issue-toc/ankjaadpkoopmdgoahdmnbfbbpnbefbj).**
+GitHub Issue TOC 会在 GitHub Issue 页面右侧自动生成目录，帮助你更快浏览内容、跳转章节，尤其适合用 Issue 写长文、博客和笔记的场景。
 
-![](./screenshots/1.gif)
+> Install from [Chrome Web Store](https://chromewebstore.google.com/detail/github-issue-toc/ankjaadpkoopmdgoahdmnbfbbpnbefbj)
+
+## Preview
+
+![](./screenshots/example.gif)

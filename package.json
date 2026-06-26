@@ -24,7 +24,8 @@
     "lint": "run-s lint:eslint lint:prettier lint:stylelint",
     "lint:eslint": "eslint . --cache --fix",
     "lint:prettier": "prettier . --cache --write '!pnpm-lock.yaml'",
-    "lint:stylelint": "stylelint '**/*.css' --cache --fix"
+    "lint:stylelint": "stylelint '**/*.css' --cache --fix",
+    "github:release": "tfr"
   },
   "dependencies": {
     "plasmo": "0.90.5",
@@ -33,6 +34,7 @@
   },
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "4.7.0",
+    "@tofrankie/action": "^0.0.8",
     "@tofrankie/eslint": "^0.4.0",
     "@tofrankie/prettier": "^0.2.0",
     "@tofrankie/stylelint": "^0.3.0",

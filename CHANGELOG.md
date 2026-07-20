@@ -1,5 +1,11 @@
 # Change log
 
+## 2.0.3
+
+> 2026-07-21
+
+- Fixed an issue where the location was inaccurate when clicking the table of contents while logged out
+
 ## 2.0.2
 
 > 2026-06-26

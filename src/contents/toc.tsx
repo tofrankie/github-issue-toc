@@ -110,6 +110,14 @@ async function recreateRoot() {
 export default function Toc() {
   const [headings, setHeadings] = useState<Heading[]>([])
   const [activeHeadingId, setActiveHeadingId] = useState('')
+  const [isLogin, setIsLogin] = useState(false)
+
+  useEffect(() => {
+    const loginIndicator =
+      document.querySelector('header button [data-login]') ??
+      document.querySelector('header button[data-login]')
+    setIsLogin(Boolean(loginIndicator))
+  }, [])
 
   useEffect(() => {
     const headings = findHeadings()
@@ -163,12 +171,26 @@ export default function Toc() {
     [headings]
   )
 
-  const scrollToHeading = useCallback((e: React.MouseEvent<HTMLLIElement>) => {
-    const headingId = e.currentTarget.dataset.href?.split('#')[1]
-    const headingElement = document.getElementById(headingId)
-    if (!headingElement) return
-    window.scrollTo({ top: headingElement.offsetTop + 24, behavior: 'instant' })
-  }, [])
+  const scrollToHeading = useCallback(
+    (e: React.MouseEvent<HTMLLIElement>) => {
+      const headingId = e.currentTarget.dataset.href?.split('#')[1]
+      const headingElement = document.getElementById(headingId)
+      if (!headingElement) return
+
+      /**
+       * 不同登录态下 issue title 距离屏幕顶部的距离：
+       * 未登录: header(72) + repository-container-header(120) = 192
+       * 已登录: header(100) = 100
+       *
+       * 计算点击目录时的 top 值:
+       * 已登陆时: offsetTop + 24 ✅ 效果良好，所以点击时设置的 top 应该是 124
+       * 未登录时: offsetTop + x ✅ 加上高度差值，验证 OK
+       */
+      const customOffset = isLogin ? 24 : 24 + 92
+      window.scrollTo({ top: headingElement.offsetTop + customOffset, behavior: 'instant' })
+    },
+    [isLogin]
+  )
 
   if (headings.length === 0) return null
 

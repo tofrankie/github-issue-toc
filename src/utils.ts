@@ -34,11 +34,14 @@ export function formatHeadings(headings: Element[]): Heading[] {
     .filter(Boolean)
 }
 
-export function throttle(func: (...args: any[]) => any, wait: number) {
+export function throttle<T extends (...args: any[]) => any>(
+  func: (...args: Parameters<T>) => ReturnType<T>,
+  wait: number
+) {
   let prev = 0
-  let timer
+  let timer: ReturnType<typeof setTimeout>
 
-  return function (...args) {
+  return function (this: any, ...args: Parameters<T>) {
     const now = Date.now()
     if (timer) clearTimeout(timer)
 

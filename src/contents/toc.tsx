@@ -26,30 +26,42 @@ export const config: PlasmoCSConfig = {
   run_at: 'document_end',
 }
 
-export function getRootContainer() {
+export function getRootContainer(timeout = 15000) {
   return new Promise(resolve => {
+    const finish = (value: Element | null) => {
+      clearInterval(timer)
+      clearTimeout(timeoutTimer)
+      resolve(value)
+    }
+
     const timer = setInterval(() => {
+      // SPA 离开 issue 页后停止轮询，避免 Promise 永远 pending
+      if (!isGitHubIssuePage(document.location.href)) {
+        finish(null)
+        return
+      }
+
       const rootContainer = document.querySelector('#plasmo-toc')
       if (rootContainer) {
-        clearInterval(timer)
-        resolve(rootContainer)
+        finish(rootContainer)
         return
       }
 
       const contentAndSidebarWrapper = document.querySelector(
-        '[class*="IssueViewer-module__contentAndSidebarWrapper__"]'
+        '[class*="contentAndSidebarWrapper__"]'
       )
       const rootContainerParent = contentAndSidebarWrapper as HTMLElement | null
       if (rootContainerParent) {
-        clearInterval(timer)
-
         const rootContainer = document.createElement('div')
         rootContainer.id = 'plasmo-toc'
         rootContainerParent.prepend(rootContainer)
 
-        resolve(rootContainer)
+        finish(rootContainer)
       }
     }, 200)
+
+    // 超时保护：选择器失效（GitHub 改版）时避免轮询空转、recreatingRoot 卡死
+    const timeoutTimer = setTimeout(finish, timeout, null)
   })
 }
 
@@ -58,18 +70,33 @@ export const render: PlasmoRender<PlasmoCSUIJSXContainer> = async ({ createRootC
   if (!isGitHubIssuePage(url)) return
 
   const rootContainer = await createRootContainer()
+  if (!rootContainer) return
   const root = createRoot(rootContainer)
   window.__plasmoTocRoot = root
   root.render(<Toc />)
 
   onIssueUpdate()
+  watchRootContainer()
 }
 
-let observer: MutationObserver
+let observer: MutationObserver | undefined
+let rootContainerObserver: MutationObserver | undefined
+let recreatingRoot = false
+let recreateTimer: ReturnType<typeof setTimeout> | undefined
+
+// 防抖：mutation 突发（虚拟列表批量加载、hydration 多阶段替换）合并为一次重挂
+function scheduleRecreateRoot(delay = 300) {
+  clearTimeout(recreateTimer)
+  recreateTimer = setTimeout(recreateRoot, delay)
+}
 
 // TODO: 监听内容高度变化，调整 toc 容器高度
 function onIssueUpdate() {
-  if (observer) observer.disconnect()
+  observer?.disconnect()
+
+  // hydration 期间 issue-body 可能暂时不存在，此时由 watchRootContainer 兜底
+  const node = document.querySelector('[data-testid="issue-body"]')
+  if (!node) return
 
   // 监听 issue 内容更新
   observer = new MutationObserver(mutationsList => {
@@ -82,10 +109,9 @@ function onIssueUpdate() {
 
     if (addedNodeList.length === 0) return
 
-    recreateRoot()
+    scheduleRecreateRoot()
   })
 
-  const node = document.querySelector('[data-testid="issue-body"]')
   observer.observe(node, {
     childList: true,
     subtree: true,
@@ -93,18 +119,61 @@ function onIssueUpdate() {
   })
 }
 
+/**
+ * GitHub hydration / React 重渲染会整体替换 issue viewer 子树，挂载点 #plasmo-toc 会随宿主子树被一并销毁；
+ * 且绑定在旧 issue-body 上的 observer 会随节点脱离文档而失效，无法再触发重挂。
+ * 因此在 body 级监听容器是否存活，丢失后自动重挂，实现自愈。
+ */
+function watchRootContainer() {
+  rootContainerObserver?.disconnect()
+
+  rootContainerObserver = new MutationObserver(() => {
+    if (!isGitHubIssuePage(document.location.href)) {
+      stopWatching()
+      return
+    }
+
+    if (!document.querySelector('#plasmo-toc')) {
+      scheduleRecreateRoot()
+    }
+  })
+
+  rootContainerObserver.observe(document.body, {
+    childList: true,
+    subtree: true,
+  })
+}
+
+function stopWatching() {
+  observer?.disconnect()
+  rootContainerObserver?.disconnect()
+  observer = undefined
+  rootContainerObserver = undefined
+}
+
 async function recreateRoot() {
-  const rootContainer = await getRootContainer()
+  // 本次重挂已覆盖待执行的防抖任务，取消之
+  clearTimeout(recreateTimer)
+  if (recreatingRoot) return
+  recreatingRoot = true
 
-  if (window.__plasmoTocRoot) {
-    window.__plasmoTocRoot.unmount()
+  try {
+    const rootContainer = (await getRootContainer()) as HTMLElement | null
+    if (!rootContainer) return
+
+    if (window.__plasmoTocRoot) {
+      window.__plasmoTocRoot.unmount()
+    }
+
+    const root = createRoot(rootContainer)
+    window.__plasmoTocRoot = root
+    root.render(<Toc />)
+
+    onIssueUpdate()
+    watchRootContainer()
+  } finally {
+    recreatingRoot = false
   }
-
-  const root = createRoot(rootContainer as Element)
-  window.__plasmoTocRoot = root
-  root.render(<Toc />)
-
-  onIssueUpdate()
 }
 
 export default function Toc() {
@@ -226,20 +295,10 @@ export default function Toc() {
 
 chrome.runtime.onMessage.addListener(throttle(onBackgroundMessage, 500))
 
-let plasmoTocMounting = false
-
 function onBackgroundMessage(message: { type: string; payload: any }) {
-  try {
-    if (message.type !== MESSAGE_TYPE.PLASMO_TOC_MOUNT) return
+  if (message.type !== MESSAGE_TYPE.PLASMO_TOC_MOUNT) return
 
-    if (plasmoTocMounting) return
-    plasmoTocMounting = true
-
-    const rootContainer = document.querySelector('#plasmo-toc')
-    if (rootContainer) return
-
-    recreateRoot()
-  } finally {
-    plasmoTocMounting = false
-  }
+  // SPA 导航到 issue 页：无论容器是否残留都重建，顺带刷新目录数据
+  // （并发由 recreateRoot 内部的 recreatingRoot 兜底）
+  recreateRoot()
 }

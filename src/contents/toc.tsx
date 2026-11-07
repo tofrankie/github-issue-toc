@@ -26,7 +26,13 @@ export const config: PlasmoCSConfig = {
   run_at: 'document_end',
 }
 
-export function getRootContainer(timeout = 15000) {
+/**
+ * 超时保护：选择器失效（GitHub 改版）时避免轮询空转、recreatingRoot 卡死。
+ * 注意不能用函数参数承载（默认值会被 plasmo 传入的 { anchor, mountState } 顶掉，导致 setTimeout delay 收到对象 → 立即触发 → 永远 resolve null）。
+ */
+const GET_ROOT_CONTAINER_TIMEOUT = 15000
+
+export function getRootContainer() {
   return new Promise(resolve => {
     const finish = (value: Element | null) => {
       clearInterval(timer)
@@ -61,7 +67,7 @@ export function getRootContainer(timeout = 15000) {
     }, 200)
 
     // 超时保护：选择器失效（GitHub 改版）时避免轮询空转、recreatingRoot 卡死
-    const timeoutTimer = setTimeout(finish, timeout, null)
+    const timeoutTimer = setTimeout(finish, GET_ROOT_CONTAINER_TIMEOUT, null)
   })
 }
 

@@ -1,5 +1,12 @@
 # Change log
 
+## 2.0.4
+
+> 2026-11-08
+
+- Compatible with the latest GitHub
+- Some potential performance optimizations
+
 ## 2.0.3
 
 > 2026-07-21
